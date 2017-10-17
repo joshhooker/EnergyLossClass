@@ -123,7 +123,7 @@ inline EnergyLoss::EnergyLoss(const char *srimFile) {
     }
   }
 
-  for(int i=0; i<stoppingConversionPower_.size(); i++) {
+  for(size_t i=0; i<stoppingConversionPower_.size(); i++) {
     if(stoppingConversionUnit1_[i]=="MeV" && stoppingConversionUnit2_[i]=="mm") {
       stoppingConversionPower = stoppingConversionPower_[i];
     }

@@ -142,7 +142,7 @@ template <typename T> inline double CubicSpline::operator()(T x) const{
     }
   }
 
-  int idx = l-1;
+  size_t idx = l-1;
 
   double xi = xs-xVec[idx];
   double result;
