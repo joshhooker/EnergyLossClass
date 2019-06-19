@@ -4,6 +4,14 @@ This is a C++ library that is used for calculating energy losses in Nuclear or P
 
 This library requires C++11.
 
+## How to install
+
+```
+git clone --recursive git@github.com:joshhooker/EnergyLossClass.git
+```
+
+Include EnergyLoss.h into your C++ program.
+
 ## Initializing an Energy Loss Class
 
 For an unedited SRIM file, we can initialize the Energy Loss Class by for example:
