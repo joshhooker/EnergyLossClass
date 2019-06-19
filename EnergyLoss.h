@@ -13,8 +13,8 @@
 
 class EnergyLoss {
 public:
-    EnergyLoss(const char *);
-    EnergyLoss(const char *, double);
+    EnergyLoss(const char*);
+    EnergyLoss(const char*, double);
 
     void ReadInitParams();
     double CalcRemainder(double, double);
@@ -59,23 +59,23 @@ private:
 
     // Variables to read SRIM File
     const int MAX_CHARS_PER_LINE = 1024000;
-    const char *const DELIMITER = " ";
+    const char* const DELIMITER = " ";
     bool beforeMultiply = true;
-    std::vector<char *> token;
+    std::vector<char*> token;
     double stoppingConversionPower;
     std::vector<double> stoppingConversionPower_;
     std::vector<std::string> stoppingConversionUnit1_;
     std::vector<std::string> stoppingConversionUnit2_;
 };
 
-inline EnergyLoss::EnergyLoss(const char *srimFile) {
+inline EnergyLoss::EnergyLoss(const char* srimFile) {
     std::ifstream inFile(srimFile);
     ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find SRIM file!\n");
 
     while(!inFile.eof()) {
         char buf[MAX_CHARS_PER_LINE];
         inFile.getline(buf, MAX_CHARS_PER_LINE);
-        char *segment = strtok(buf, DELIMITER);
+        char* segment = strtok(buf, DELIMITER);
         token.push_back(segment);
 
         if(token[0]) { //check if the line is good
@@ -128,14 +128,14 @@ inline EnergyLoss::EnergyLoss(const char *srimFile) {
     ReadInitParams();
 }
 
-inline EnergyLoss::EnergyLoss(const char *srimFile, double stoppingPower) {
+inline EnergyLoss::EnergyLoss(const char* srimFile, double stoppingPower) {
     std::ifstream inFile(srimFile);
     ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find SRIM file!\n");
 
     while(!inFile.eof()) {
         char buf[MAX_CHARS_PER_LINE];
         inFile.getline(buf, MAX_CHARS_PER_LINE);
-        char *segment = strtok(buf, DELIMITER);
+        char* segment = strtok(buf, DELIMITER);
         token.push_back(segment);
 
         if(token[0]) { //check if the line is good

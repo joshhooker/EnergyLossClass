@@ -4,3 +4,4 @@ output
 build/
 .idea/
 cmake-build-debug/
+.vscode

@@ -11,15 +11,15 @@ int main() {
     // CalcRemainder
     printf("Calculating energy remaining of 12C through CsI:\n");
     printf("\t 150 MeV 12C through 0.1mm CsI. Remaining Energy: %12.9f MeV\n", carbon->CalcRemainder(150., .1));
-    printf("\t\t SRIM Value: 118.11 MeV\n");
+    printf("\t\t SRIM Value: 118.1100 MeV\n");
     printf("\t Using carbonUseFactor. 150 MeV 12C through 0.1mm CsI. Remaining Energy: %12.9f MeV\n", carbonUseFactor->CalcRemainder(150., .1));
-    printf("\t\t SRIM Value: 118.11 MeV\n");
+    printf("\t\t SRIM Value: 118.1100 MeV\n");
     printf("\t 72 MeV 12C through 0.1mm CsI. Remaining Energy: %12.9f MeV\n", carbon->CalcRemainder(72., .1));
-    printf("\t\t SRIM Value: 3.30 MeV\n");
+    printf("\t\t SRIM Value: 3.2985 MeV\n");
     printf("\t 15 MeV 12C through 0.005mm CsI. Remaining Energy: %12.9f MeV\n", carbon->CalcRemainder(15., .005));
-    printf("\t\t SRIM Value: 9.81 MeV\n");
+    printf("\t\t SRIM Value: 9.8093 MeV\n");
     printf("\t 1 MeV 12C through 0.001mm CsI. Remaining Energy: %12.9f MeV\n", carbon->CalcRemainder(1., 0.001));
-    printf("\t\t SRIM Value: 0.30 MeV\n");
+    printf("\t\t SRIM Value: 0.3027 MeV\n");
 
     //AddBack
     printf("\nCalculating initial energy of 12C when it goes through CsI:\n");
@@ -33,9 +33,9 @@ int main() {
     printf("\t 12C 10 MeV to 0.5 MeV in CsI. Range: %8.4fmm\n", carbon->CalcRange(10., 0.5));
     printf("\t\t SRIM Value: 0.0088 mm\n");
     printf("\t 12C 50 MeV to 0. MeV in CsI. Range: %8.4fmm\n", carbon->CalcRange(50., 0.));
-    printf("\t\t SRIM Value: 0.06 mm\n");
+    printf("\t\t SRIM Value: 0.0624 mm\n");
     printf("\t 12C 100 MeV to 0. MeV in CsI. Range: %8.4fmm\n", carbon->CalcRange(100., 0.));
-    printf("\t\t SRIM Value: 0.17 mm\n");
+    printf("\t\t SRIM Value: 0.1699 mm\n");
 
     // Test Precision
     printf("\nTesting different number of GL Points for 1000 MeV 12C through 7.75mm CsI:\n");
