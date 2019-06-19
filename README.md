@@ -2,7 +2,7 @@
 
 This is a C++ library that is used for calculating energy losses in Nuclear or Particle Physics using SRIM tables. The only required inputs are a SRIM file and the SRIM files can be the exact same output from SRIM or a "reduced" file where only the table is present along with the conversion factor to MeV/mm. More information on the setup of input files can be found in the [Setting Up Input Files](#inputFiles) section.
 
-There is also a non-C++11 version which just replaces the CubicSpline Class (https://github.com/joshhooker/CubicSplineClass) with a version that is compatible for situations that you can't use C++11 (compiler, ROOT5, etc.)
+This library requires C++11.
 
 ## Initializing an Energy Loss Class
 
