@@ -176,6 +176,8 @@ inline double EnergyLoss::CalcRemainder(double initialEnergy, double distance) {
     if(distance == 0.) return initialEnergy;
     if(initialEnergy < CalcRemainderErr) return 0.;
 
+    distance = fabs(distance);
+
     double maxRange = CalcRange(initialEnergy, 0.);
 
     if(distance > maxRange) return 0.;
@@ -200,6 +202,8 @@ inline double EnergyLoss::CalcRemainder(double initialEnergy, double distance) {
 
 inline double EnergyLoss::AddBack(double finalEnergy, double distance) {
     if(distance == 0.) return finalEnergy;
+
+    distance = fabs(distance);
 
     double lowEnergy = finalEnergy;
     double highEnergy = AddBackHighPoint;

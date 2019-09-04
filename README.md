@@ -7,7 +7,7 @@ This library requires C++11.
 ## How to install
 
 ```
-git clone --recursive git@github.com:joshhooker/EnergyLossClass.git
+git clone --recursive https://github.com/joshhooker/EnergyLossClass.git
 ```
 
 Include EnergyLoss.h into your C++ program.
