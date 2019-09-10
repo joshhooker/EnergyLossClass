@@ -3,10 +3,12 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "CubicSpline/CubicSpline.h"
@@ -15,6 +17,8 @@ class EnergyLoss {
 public:
     EnergyLoss(const char*);
     EnergyLoss(const char*, double);
+    EnergyLoss(const char*, bool);
+    EnergyLoss(const char*, double , bool);
 
     void ReadInitParams();
     double CalcRemainder(double, double);
@@ -35,6 +39,11 @@ public:
     void UseGL1024();
 
 private:
+    bool debug = false;
+
+    void ReadFile(const char*);
+    void ReadFileSimple(const char*, double);
+
     std::vector<double> energy_;
     std::vector<double> dEdx_;
     CubicSpline energySpline;
@@ -66,11 +75,35 @@ private:
     std::vector<double> stoppingConversionPower_;
     std::vector<std::string> stoppingConversionUnit1_;
     std::vector<std::string> stoppingConversionUnit2_;
+
+    std::string PrintOutput(std::string Output, std::string Color);
 };
 
+inline EnergyLoss::EnergyLoss(const char* srimFile, bool debugger) {
+    debug = debugger;
+    ReadFile(srimFile);
+}
+
 inline EnergyLoss::EnergyLoss(const char* srimFile) {
+    debug = false;
+    ReadFile(srimFile);
+}
+
+inline EnergyLoss::EnergyLoss(const char* srimFile, double stoppingPower) {
+    debug = false;
+    ReadFileSimple(srimFile, stoppingPower);
+}
+
+inline EnergyLoss::EnergyLoss(const char* srimFile, double stoppingPower, bool debugger) {
+    debug = debugger;
+    ReadFileSimple(srimFile, stoppingPower);
+}
+
+inline void EnergyLoss::ReadFile(const char* srimFile) {
     std::ifstream inFile(srimFile);
     ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find SRIM file!\n");
+
+    if(debug) std::cout << PrintOutput("DEBUGGING: READING IN SRIM FILE", "red") << std::endl;
 
     while(!inFile.eof()) {
         char buf[MAX_CHARS_PER_LINE];
@@ -80,15 +113,22 @@ inline EnergyLoss::EnergyLoss(const char* srimFile) {
 
         if(token[0]) { //check if the line is good
             if(atof(token[0]) && beforeMultiply) { // check if number
+
                 double energy = atof(token[0]);
                 std::string energyUnit = strtok(0, DELIMITER);
                 double dEElec = atof(strtok(0, DELIMITER));
                 double dENuclear  = atof(strtok(0, DELIMITER));
 
-                if(energyUnit == "eV") energy_.push_back(energy*1.e-6);
-                else if(energyUnit == "keV") energy_.push_back(energy*1.e-3);
-                else if(energyUnit == "MeV") energy_.push_back(energy);
-                else if(energyUnit == "GeV") energy_.push_back(energy*1.e3);
+                if(debug) {
+                    char* buffer[256];
+                    sprintf(reinterpret_cast<char *>(buffer), "Energy: %f %s dEElec: %f dENuclear: %f", energy, energyUnit.c_str(), dEElec, dENuclear);
+                    std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+                }
+
+                if(energyUnit.compare("eV") == 0) energy_.push_back(energy*1.e-6);
+                else if(energyUnit.compare("keV") == 0) energy_.push_back(energy*1.e-3);
+                else if(energyUnit.compare("MeV") == 0) energy_.push_back(energy);
+                else if(energyUnit.compare("GeV") == 0) energy_.push_back(energy*1.e3);
                 dEdx_.push_back(dEElec+dENuclear);
             }
 
@@ -109,9 +149,14 @@ inline EnergyLoss::EnergyLoss(const char* srimFile) {
         }
     }
 
-    for(size_t i=0; i<stoppingConversionPower_.size(); i++) {
-        if(stoppingConversionUnit1_[i]=="MeV" && stoppingConversionUnit2_[i]=="mm") {
+    for(size_t i = 0; i < stoppingConversionPower_.size(); i++) {
+        if(stoppingConversionUnit1_[i].compare("MeV") == 0 && stoppingConversionUnit2_[i].compare("mm") == 0) {
             stoppingConversionPower = stoppingConversionPower_[i];
+            if(debug) {
+                char* buffer[256];
+                sprintf(reinterpret_cast<char *>(buffer), "Conversion: %f %s/%s", stoppingConversionPower, stoppingConversionUnit1_[i].c_str(), stoppingConversionUnit2_[i].c_str());
+                std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+            }
         }
     }
     std::transform(dEdx_.begin(), dEdx_.end(), dEdx_.begin(),
@@ -128,9 +173,11 @@ inline EnergyLoss::EnergyLoss(const char* srimFile) {
     ReadInitParams();
 }
 
-inline EnergyLoss::EnergyLoss(const char* srimFile, double stoppingPower) {
+inline void EnergyLoss::ReadFileSimple(const char* srimFile, double stoppingPower) {
     std::ifstream inFile(srimFile);
     ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find SRIM file!\n");
+
+    if(debug) std::cout << PrintOutput("DEBUGGING: READING IN SRIM FILE", "red") << std::endl;
 
     while(!inFile.eof()) {
         char buf[MAX_CHARS_PER_LINE];
@@ -145,10 +192,16 @@ inline EnergyLoss::EnergyLoss(const char* srimFile, double stoppingPower) {
                 double dEElec = atof(strtok(0, DELIMITER));
                 double dENuclear = atof(strtok(0, DELIMITER));
 
-                if(energyUnit == "eV") energy_.push_back(energy*1.e-6);
-                else if(energyUnit == "keV") energy_.push_back(energy*1.e-3);
-                else if(energyUnit == "MeV") energy_.push_back(energy);
-                else if(energyUnit == "GeV") energy_.push_back(energy*1.e3);
+                if(debug) {
+                    char* buffer[256];
+                    sprintf(reinterpret_cast<char *>(buffer), "Energy: %f %s dEElec: %f dENuclear: %f", energy, energyUnit.c_str(), dEElec, dENuclear);
+                    std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+                }
+
+                if(energyUnit.compare("eV") == 0) energy_.push_back(energy*1.e-6);
+                else if(energyUnit.compare("keV") == 0) energy_.push_back(energy*1.e-3);
+                else if(energyUnit.compare("MeV") == 0) energy_.push_back(energy);
+                else if(energyUnit.compare("GeV") == 0) energy_.push_back(energy*1.e3);
                 dEdx_.push_back(dEElec+dENuclear);
             }
         }
@@ -176,9 +229,12 @@ inline double EnergyLoss::CalcRemainder(double initialEnergy, double distance) {
     if(distance == 0.) return initialEnergy;
     if(initialEnergy < CalcRemainderErr) return 0.;
 
+    if(debug) std::cout << PrintOutput("DEBUGGING: CalcRemainder", "red") << std::endl;
+
     distance = fabs(distance);
 
     double maxRange = CalcRange(initialEnergy, 0.);
+    if(debug) std::cout << PrintOutput("Max Range of particle in the material (mm): ", "green") << maxRange << std::endl;
 
     if(distance > maxRange) return 0.;
 
@@ -187,7 +243,13 @@ inline double EnergyLoss::CalcRemainder(double initialEnergy, double distance) {
     double guessEnergy = (highEnergy + lowEnergy)/2.0;
 
     double range = CalcRange(initialEnergy, guessEnergy);
-    while(fabs(range-distance) > CalcRemainderErr) {
+    while(fabs(range - distance) > CalcRemainderErr) {
+        if(debug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "Low Energy: %f; Guess Energy: %f; High Energy: %f Range: %f; Distance: %f",
+                    lowEnergy, guessEnergy, highEnergy, range, distance);
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         if(range > distance) {
             lowEnergy = guessEnergy;
             guessEnergy = (lowEnergy+highEnergy)/2.0;
@@ -205,12 +267,20 @@ inline double EnergyLoss::AddBack(double finalEnergy, double distance) {
 
     distance = fabs(distance);
 
+    if(debug) std::cout << PrintOutput("DEBUGGING: AddBack", "red") << std::endl;
+
     double lowEnergy = finalEnergy;
     double highEnergy = AddBackHighPoint;
     double guessEnergy = (highEnergy + lowEnergy)/2.0;
 
     double range = CalcRange(guessEnergy, finalEnergy);
-    while(fabs(range-distance) > AddBackErr) {
+    while(fabs(range - distance) > AddBackErr) {
+        if(debug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "Low Energy: %f; Guess Energy: %f; High Energy: %f Range: %f; Distance: %f",
+                    lowEnergy, guessEnergy, highEnergy, range, distance);
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         if(range < distance) {
             lowEnergy = guessEnergy;
             guessEnergy = (lowEnergy + highEnergy)/2.0;
@@ -405,6 +475,28 @@ inline void EnergyLoss::ReadInitParams() {
 
 inline double GetdEdx(const EnergyLoss& elClass, double energy) {
     return elClass.energySpline(energy);
+}
+
+inline std::string EnergyLoss::PrintOutput(std::string Output, std::string Color) {
+    int ColorCode = 0;
+    if(Color.compare("red") == 0){
+        ColorCode = 31;
+    } else if(Color.compare("green") == 0){
+        ColorCode = 32;
+    } else if(Color.compare("yellow") == 0){
+        ColorCode = 33;
+    } else if(Color.compare("blue") == 0) {
+        ColorCode = 34;
+    } else if(Color.compare("magenta") == 0) {
+        ColorCode = 35;
+    } else if(Color.compare("cyan") == 0) {
+        ColorCode = 36;
+    } else {
+        return Output;
+    }
+    char buffer[256];
+    sprintf(buffer, "\033[1;%dm%s\033[0m", ColorCode, Output.c_str());
+    return buffer;
 }
 
 #endif
