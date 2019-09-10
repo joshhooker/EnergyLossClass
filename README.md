@@ -166,3 +166,14 @@ This will be our conversion from whatever the Stopping Units are to MeV/mm. A tr
 9.00 GeV   4.991E-02  8.045E-06  277.68 mm    11.25 mm     5.02 mm
 10.00 GeV   4.859E-02  7.302E-06  322.69 mm    12.95 mm     5.71 mm
 ```
+
+## Debugging
+
+If you are having issues, add the a true boolean to your EnergyLoss initialization:
+```c++
+EnergyLoss* carbon = new EnergyLoss("CarbonCsI", true);
+```
+```c++
+EnergyLoss* carbonUseFactor = new EnergyLoss("CarbonCsIReduced.dat", 4.5099e+02, true);
+```
+

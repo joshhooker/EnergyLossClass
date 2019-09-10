@@ -38,8 +38,11 @@ public:
     void UseGL512();
     void UseGL1024();
 
+    void UseCalcRangeDebug();
+
 private:
     bool debug = false;
+    bool calcRangeDebug = false;
 
     void ReadFile(const char*);
     void ReadFileSimple(const char*, double);
@@ -473,10 +476,6 @@ inline void EnergyLoss::ReadInitParams() {
     inFile.close();
 }
 
-inline double GetdEdx(const EnergyLoss& elClass, double energy) {
-    return elClass.energySpline(energy);
-}
-
 inline std::string EnergyLoss::PrintOutput(std::string Output, std::string Color) {
     int ColorCode = 0;
     if(Color.compare("red") == 0){
@@ -497,6 +496,14 @@ inline std::string EnergyLoss::PrintOutput(std::string Output, std::string Color
     char buffer[256];
     sprintf(buffer, "\033[1;%dm%s\033[0m", ColorCode, Output.c_str());
     return buffer;
+}
+
+inline void EnergyLoss::UseCalcRangeDebug() {
+    calcRangeDebug = true;
+}
+
+inline double GetdEdx(const EnergyLoss& elClass, double energy) {
+    return elClass.energySpline(energy);
 }
 
 #endif
