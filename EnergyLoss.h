@@ -1,5 +1,5 @@
-#ifndef ENERGY_LOSS_H
-#define ENERGY_LOSS_H
+#ifndef EnergyLoss_h
+#define EnergyLoss_h
 
 #include <cassert>
 #include <cmath>
@@ -370,10 +370,23 @@ inline double EnergyLoss::CalcRangeGL16(double a, double b) {
     double t0 = (a + b)/2.0;
     double dt = (b - a)/2.0;
     double result = 0.;
+    if(calcRangeDebug) std::cout << PrintOutput("DEBUGGING: CalcRange", "red") << std::endl;
     for(int i = 7; i > -1; i--) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w16[i]: %f; -x16[i]: %f energySpline(t0 + dt*(-x16[i])): %f",
+                    i, w16[i], -x16[i], energySpline(t0 + dt*(-x16[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w16[i]*(1./energySpline(t0 + dt*(-x16[i])));
     }
     for(int i = 0; i < 8; i++) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w16[i]: %f; x16[i]: %f energySpline(t0 + dt*(x16[i])): %f",
+                    i, w16[i], x16[i], energySpline(t0 + dt*(x16[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w16[i]*(1./energySpline(t0 + dt*x16[i]));
     }
     return result*dt;
@@ -384,9 +397,21 @@ inline double EnergyLoss::CalcRangeGL32(double a, double b) {
     double dt = (b - a)/2.0;
     double result = 0.;
     for(int i = 15; i > -1; i--) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w32[i]: %f; -x32[i]: %f energySpline(t0 + dt*(-x32[i])): %f",
+                    i, w32[i], -x32[i], energySpline(t0 + dt*(-x32[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w32[i]*(1./energySpline(t0 + dt*(-x32[i])));
     }
     for(int i = 0; i < 16; i++) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w32[i]: %f; x32[i]: %f energySpline(t0 + dt*(x32[i])): %f",
+                    i, w32[i], x32[i], energySpline(t0 + dt*(x32[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w32[i]*(1./energySpline(t0 + dt*x32[i]));
     }
     return result*dt;
@@ -397,9 +422,21 @@ inline double EnergyLoss::CalcRangeGL64(double a, double b) {
     double dt = (b - a)/2.0;
     double result = 0.;
     for(int i = 31; i > -1; i--) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w64[i]: %f; -x64[i]: %f energySpline(t0 + dt*(-x64[i])): %f",
+                    i, w64[i], -x64[i], energySpline(t0 + dt*(-x64[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w64[i]*(1./energySpline(t0 + dt*(-x64[i])));
     }
     for(int i = 0; i < 32; i++) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w64[i]: %f; x64[i]: %f energySpline(t0 + dt*(x64[i])): %f",
+                    i, w64[i], x64[i], energySpline(t0 + dt*(x64[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w64[i]*(1./energySpline(t0 + dt*x64[i]));
     }
     return result*dt;
@@ -410,9 +447,21 @@ inline double EnergyLoss::CalcRangeGL128(double a, double b) {
     double dt = (b - a)/2.0;
     double result = 0.;
     for(int i = 63; i > -1; i--) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w128[i]: %f; -x128[i]: %f energySpline(t0 + dt*(-x128[i])): %f",
+                    i, w128[i], -x128[i], energySpline(t0 + dt*(-x128[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w128[i]*(1./energySpline(t0 + dt*(-x128[i])));
     }
     for(int i = 0; i < 64; i++) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w128[i]: %f; x128[i]: %f energySpline(t0 + dt*(x128[i])): %f",
+                    i, w128[i], x128[i], energySpline(t0 + dt*(x128[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w128[i]*(1./energySpline(t0 + dt*x128[i]));
     }
     return result*dt;
@@ -423,9 +472,21 @@ inline double EnergyLoss::CalcRangeGL256(double a, double b) {
     double dt = (b - a)/2.0;
     double result = 0.;
     for(int i = 127; i > -1; i--) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w256[i]: %f; -x256[i]: %f energySpline(t0 + dt*(-x256[i])): %f",
+                    i, w256[i], -x256[i], energySpline(t0 + dt*(-x256[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w256[i]*(1./energySpline(t0 + dt*(-x256[i])));
     }
     for (int i = 0; i < 128; i++) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w256[i]: %f; x256[i]: %f energySpline(t0 + dt*(x256[i])): %f",
+                    i, w256[i], x256[i], energySpline(t0 + dt*(x256[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w256[i]*(1./energySpline(t0 + dt*x256[i]));
     }
     return result*dt;
@@ -436,9 +497,21 @@ inline double EnergyLoss::CalcRangeGL512(double a, double b) {
     double dt = (b - a)/2.0;
     double result = 0.;
     for(int i = 255; i > -1; i--) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w512[i]: %f; -x512[i]: %f energySpline(t0 + dt*(-x512[i])): %f",
+                    i, w512[i], -x512[i], energySpline(t0 + dt*(-x512[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w512[i]*(1./energySpline(t0 + dt*(-x512[i])));
     }
     for(int i = 0; i < 256; i++) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w512[i]: %f; x512[i]: %f energySpline(t0 + dt*(x512[i])): %f",
+                    i, w512[i], x512[i], energySpline(t0 + dt*(x512[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w512[i]*(1./energySpline(t0 + dt*x512[i]));
     }
     return result*dt;
@@ -449,9 +522,21 @@ inline double EnergyLoss::CalcRangeGL1024(double a, double b) {
     double dt = (b - a)/2.0;
     double result = 0.;
     for(int i = 511; i > -1; i--) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w1024[i]: %f; -x1024[i]: %f energySpline(t0 + dt*(-x1024[i])): %f",
+                    i, w1024[i], -x1024[i], energySpline(t0 + dt*(-x1024[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w1024[i]*(1./energySpline(t0 + dt*(-x1024[i])));
     }
     for(int i = 0; i < 512; i++) {
+        if(calcRangeDebug) {
+            char* buffer[256];
+            sprintf(reinterpret_cast<char *>(buffer), "i: %d; w1024[i]: %f; x1024[i]: %f energySpline(t0 + dt*(x1024[i])): %f",
+                    i, w1024[i], x1024[i], energySpline(t0 + dt*(x1024[i])));
+            std::cout << PrintOutput(reinterpret_cast<const char *>(buffer), "green") << std::endl;
+        }
         result += w1024[i]*(1./energySpline(t0 + dt*x1024[i]));
     }
     return result * dt;
