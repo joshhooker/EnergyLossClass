@@ -177,3 +177,5 @@ EnergyLoss* carbon = new EnergyLoss("CarbonCsI", true);
 EnergyLoss* carbonUseFactor = new EnergyLoss("CarbonCsIReduced.dat", 4.5099e+02, true);
 ```
 
+### License
+See the [LICENSE](https://github.com/joshhooker/EnergyLossClass/blob/master/LICENSE.md) file for license rights and limitations (MIT).
