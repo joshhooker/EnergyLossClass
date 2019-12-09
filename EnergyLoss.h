@@ -109,7 +109,7 @@ inline void EnergyLoss::ReadFile(const char* srimFile) {
     if(debug) std::cout << PrintOutput("DEBUGGING: READING IN SRIM FILE", "red") << std::endl;
 
     while(!inFile.eof()) {
-        char buf[MAX_CHARS_PER_LINE];
+        char buf[1024000];
         inFile.getline(buf, MAX_CHARS_PER_LINE);
         char* segment = strtok(buf, DELIMITER);
         token.push_back(segment);
@@ -163,7 +163,7 @@ inline void EnergyLoss::ReadFile(const char* srimFile) {
         }
     }
     std::transform(dEdx_.begin(), dEdx_.end(), dEdx_.begin(),
-                   std::bind1st(std::multiplies<double>(), stoppingConversionPower));
+                   std::bind(std::multiplies<double>(), std::placeholders::_1, stoppingConversionPower));
     energySpline.SetPoints(energy_, dEdx_);
 
     GL16 = GL32 = GL64 = GL128 = GL256 = GL1024 = false;
@@ -215,7 +215,7 @@ inline void EnergyLoss::ReadFileSimple(const char* srimFile, double stoppingPowe
     }
 
     std::transform(dEdx_.begin(), dEdx_.end(), dEdx_.begin(),
-                   std::bind1st(std::multiplies<double>(), stoppingPower));
+                   std::bind(std::multiplies<double>(), std::placeholders::_1, stoppingPower));
     energySpline.SetPoints(energy_, dEdx_);
 
     GL16 = GL32 = GL64 = GL128 = GL256 = GL1024 = false;

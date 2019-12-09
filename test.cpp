@@ -5,7 +5,7 @@
 int main() {
     printf("Test and Example of EnergyLoss Library\n\n");
 
-    EnergyLoss *carbon = new EnergyLoss("CarbonCsI.dat", true);
+    EnergyLoss *carbon = new EnergyLoss("CarbonCsI.dat", false);
     EnergyLoss *carbonUseFactor = new EnergyLoss("CarbonCsIReduced.dat", 4.5099E+02);
 
     // CalcRemainder

@@ -3,6 +3,9 @@
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 project(ENERGYLOSS)
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
