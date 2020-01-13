@@ -15,10 +15,14 @@
 
 class EnergyLoss {
 public:
+    EnergyLoss();
     EnergyLoss(const char*);
     EnergyLoss(const char*, double);
     EnergyLoss(const char*, bool);
     EnergyLoss(const char*, double , bool);
+
+    void ReadBasicdEdx(const char*);
+    void SetDebug(bool);
 
     void ReadInitParams();
     double CalcRemainder(double, double);
@@ -82,13 +86,17 @@ private:
     std::string PrintOutput(std::string Output, std::string Color);
 };
 
-inline EnergyLoss::EnergyLoss(const char* srimFile, bool debugger) {
-    debug = debugger;
-    ReadFile(srimFile);
+inline EnergyLoss::EnergyLoss() {
+    debug = false;
 }
 
 inline EnergyLoss::EnergyLoss(const char* srimFile) {
     debug = false;
+    ReadFile(srimFile);
+}
+
+inline EnergyLoss::EnergyLoss(const char* srimFile, bool debugger) {
+    debug = debugger;
     ReadFile(srimFile);
 }
 
@@ -226,6 +234,32 @@ inline void EnergyLoss::ReadFileSimple(const char* srimFile, double stoppingPowe
     AddBackHighPoint = 250.;
 
     ReadInitParams();
+}
+
+inline void EnergyLoss::ReadBasicdEdx(const char* inputFile) {
+    std::ifstream inFile(inputFile);
+    ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find input file!\n");
+
+    double energy, dEdx;
+    while(inFile >> energy >> dEdx) {
+        energy_.push_back(energy);
+        dEdx_.push_back(dEdx);
+    }
+
+    energySpline.SetPoints(energy_, dEdx_);
+
+    GL16 = GL32 = GL64 = GL128 = GL256 = GL1024 = false;
+    GL512 = true;
+
+    CalcRemainderErr = 1.e-8;
+    AddBackErr = 1.e-8;
+    AddBackHighPoint = 250.;
+
+    ReadInitParams();
+}
+
+inline void EnergyLoss::SetDebug(bool flag) {
+    debug = flag;
 }
 
 inline double EnergyLoss::CalcRemainder(double initialEnergy, double distance) {
