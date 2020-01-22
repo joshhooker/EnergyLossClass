@@ -266,6 +266,9 @@ inline void EnergyLoss::SetDebug(bool flag) {
 
 inline double EnergyLoss::CalcRemainder(double initialEnergy, double distance) {
     if(distance == 0.) return initialEnergy;
+
+    distance = fabs(distance);
+
     if(initialEnergy < CalcRemainderErr) return 0.;
 
     if(debug) std::cout << PrintOutput("DEBUGGING: CalcRemainder", "red") << std::endl;
@@ -339,6 +342,10 @@ inline double EnergyLoss::AddBack(double finalEnergy, double distance) {
 }
 
 inline double EnergyLoss::CalcRange(double initialEnergy, double remainder) {
+    if(initialEnergy < 0.) return 0.;
+    if(remainder < 0.) return 0.;
+
+    if(remainder > initialEnergy) return 0;
 
     if(initialEnergy == remainder) return 0;
     double distance;
