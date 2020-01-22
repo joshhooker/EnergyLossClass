@@ -1,12 +1,14 @@
 #ifndef EnergyLoss_h
 #define EnergyLoss_h
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <string>
 #include <vector>
