@@ -587,6 +587,8 @@ inline double EnergyLoss::CalcRangeGL1024(double a, double b) {
 
 inline void EnergyLoss::ReadInitParams() {
     std::ifstream inFile("EnergyLoss.dat", std::ios::in | std::ifstream::binary);
+    ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find EnergyLoss.dat file!\n");
+
     inFile.read(reinterpret_cast<char*> (x16), sizeof(x16));
     inFile.read(reinterpret_cast<char*> (w16), sizeof(w16));
     inFile.read(reinterpret_cast<char*> (x32), sizeof(x32));
