@@ -65,6 +65,7 @@ int main() {
 
     printf("Calculating energy remaining of Proton through solid D2 target:\n");
     printf("\t 10 MeV Proton through 1.0 mm of solid D2. Remaining Energy: %12.9f MeV\n", proton->CalcRemainder(10., 1.0));
+    delete proton;
 
     return 0;
 }
