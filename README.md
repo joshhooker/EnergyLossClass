@@ -1,6 +1,6 @@
 # Energy Loss Library
 
-This is a C++ library that is used for calculating energy losses in Nuclear or Particle Physics using SRIM tables. The only required inputs are a SRIM file and the SRIM files can be the exact same output from SRIM or a "reduced" file where only the table is present along with the conversion factor to MeV/mm. More information on the setup of input files can be found in the [Setting Up Input Files](#inputFiles) section.
+This is a C++ library that is used for calculating energy losses in Nuclear or Particle Physics using SRIM tables or LISE++ tables. The only required inputs are a SRIM file and the SRIM files can be the exact same output from SRIM or a "reduced" file where only the table is present along with the conversion factor to MeV/mm. More information on the setup of input files can be found in the [Setting Up Input Files](#inputFiles) section. To use this with tables generated from LISE++, more information can be found in [Using LISE++ Tables](#liseTables)
 
 This library requires C++11.
 
@@ -176,6 +176,35 @@ EnergyLoss* carbon = new EnergyLoss("CarbonCsI", true);
 ```c++
 EnergyLoss* carbonUseFactor = new EnergyLoss("CarbonCsIReduced.dat", 4.5099e+02, true);
 ```
+
+## Using LISE++ Tables<a name="liseTables"></a>
+
+The LISE++ table implementation in the EnergyLoss class allows for you to use MeV/mm or MeV/mg/cm2 as in input, allows one to use different energy loss calculations that are provided in the table. The base implementation looks like the following:
+```c++
+ReadLISEdEdx(const char* inputFile, double mass, double density, int column)
+```
+* mass is the mass of the particle in u (required)
+* density is measured in g/cm3. If density is present, then the table is assumed to be in units of MeV/mg/cm2.
+* column is which energy loss calculation to use which is described below.
+
+LISE++ tables come with 5 different energy loss calculations and we can toggle between the columns when initializing the tables.
+Columns:
+* 0 - dE/dx from F.Hubert et al, AD&ND Tables 46 (1990)
+* 1 - dE/dx from  J.F.Ziegler et al, Pergamon Press, NY (low energy)
+* 2 - dE/dx from ATIMA 1.2  LS-theory (recommended for high energy)
+* 3 - dE/dx from ATIMA 1.2  without LS-correction
+* 4 - electrical component + nuclear component of J. F. Ziegler et al.
+
+To use LISE++ tables, we will first initialize the EnergyLoss class
+```c++
+EnergyLoss* carbon = new EnergyLoss();
+```
+
+To then use an energy loss table from LISE++ of 12C in CsI where the units are in MeV/mm and we will use energy loss column #0
+```c++
+carbon->ReadLISEdEdx("12C_in_CsI.lise", 12.0);
+```
+
 
 ### License
 See the [LICENSE](https://github.com/joshhooker/EnergyLossClass/blob/master/LICENSE.md) file for license rights and limitations (MIT).

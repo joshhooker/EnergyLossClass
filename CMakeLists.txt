@@ -27,6 +27,7 @@ set(SCRIPTS
   CarbonCsIReduced.dat
   EnergyLoss.dat
   ProtonD2.dat
+  12C_in_CsI.lise
 )
 
 foreach(_script ${SCRIPTS})

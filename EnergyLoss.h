@@ -24,6 +24,13 @@ public:
     EnergyLoss(const char*, double , bool);
 
     void ReadBasicdEdx(const char*);
+
+    void ReadLISEFile(const char*);
+    void ReadLISEdEdx(const char*, double);
+    void ReadLISEdEdx(const char*, double, int);
+    void ReadLISEdEdx(const char*, double, double);
+    void ReadLISEdEdx(const char*, double, double, int);
+
     void SetDebug(bool);
 
     void ReadInitParams();
@@ -84,6 +91,10 @@ private:
     std::vector<double> stoppingConversionPower_;
     std::vector<std::string> stoppingConversionUnit1_;
     std::vector<std::string> stoppingConversionUnit2_;
+
+    // Variables to read LISE File
+    std::vector<double> lise_energy_mevu_; // in MeV/u
+    std::vector<double> lise_dedx_columns_[5]; // in MeV/um or MeV/mg/cm2
 
     std::string PrintOutput(std::string Output, std::string Color);
 };
@@ -243,7 +254,7 @@ inline void EnergyLoss::ReadBasicdEdx(const char* inputFile) {
     ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find input file!\n");
 
     double energy, dEdx;
-    while(inFile >> energy >> dEdx) {
+    while (inFile >> energy >> dEdx) {
         energy_.push_back(energy);
         dEdx_.push_back(dEdx);
     }
@@ -258,6 +269,63 @@ inline void EnergyLoss::ReadBasicdEdx(const char* inputFile) {
     AddBackHighPoint = 250.;
 
     ReadInitParams();
+}
+
+inline void EnergyLoss::ReadLISEFile(const char* inputFile) {
+    std::ifstream inFile(inputFile);
+    ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find input file!\n");
+
+    std::string str;
+    std::getline(inFile, str); // skip the first line
+
+    double energy, dEdx0, dEdx1, dEdx2, dEdx3, dEdx4, dEdx5, dummy;
+    while (inFile >> energy >> dEdx0 >> dummy >> dEdx1 >> dummy >> dEdx2 >> dummy >> dEdx3 >> dummy >> dEdx4 >> dummy >> dEdx5) {
+        lise_energy_mevu_.push_back(energy);
+        lise_dedx_columns_[0].push_back(dEdx0);
+        lise_dedx_columns_[1].push_back(dEdx1);
+        lise_dedx_columns_[2].push_back(dEdx2);
+        lise_dedx_columns_[3].push_back(dEdx3);
+        lise_dedx_columns_[4].push_back(dEdx4 + dEdx5);
+    }
+
+    inFile.close();
+}
+
+inline void EnergyLoss::ReadLISEdEdx(const char* inputFile, double mass) {
+    ReadLISEdEdx(inputFile, mass, 1000.0, 0);
+}
+
+inline void EnergyLoss::ReadLISEdEdx(const char* inputFile, double mass, int column) {
+    ReadLISEdEdx(inputFile, mass, 1000.0, column);
+}
+
+inline void EnergyLoss::ReadLISEdEdx(const char* inputFile, double mass, double density) {
+    ReadLISEdEdx(inputFile, mass, density, 0);
+}
+
+inline void EnergyLoss::ReadLISEdEdx(const char* inputFile, double mass, double density, int column) {
+    ReadLISEFile(inputFile);
+
+    energy_ = lise_energy_mevu_;
+    std::transform(energy_.begin(), energy_.end(), energy_.begin(),
+                   std::bind(std::multiplies<double>(), std::placeholders::_1, mass));
+
+    dEdx_ = lise_dedx_columns_[column];
+    std::transform(dEdx_.begin(), dEdx_.end(), dEdx_.begin(),
+                   std::bind(std::multiplies<double>(), std::placeholders::_1, density*100.));
+
+    energySpline.SetPoints(energy_, dEdx_);
+
+    GL16 = GL32 = GL64 = GL128 = GL256 = GL1024 = false;
+    GL512 = true;
+
+    CalcRemainderErr = 1.e-8;
+    AddBackErr = 1.e-8;
+    AddBackHighPoint = 250.;
+
+    ReadInitParams();
+
+    debug = true;
 }
 
 inline void EnergyLoss::SetDebug(bool flag) {
