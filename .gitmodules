@@ -1,5 +1,0 @@
-[submodule "CubicSpline"]
-	path = CubicSpline
-	url = https://joshhooker@github.com/joshhooker/CubicSplineClass
-	fetchrecursesubmodules = true
-	update = checkout
