@@ -1,13 +1,13 @@
 # Energy Loss Library
 
-This is a C++ library that is used for calculating energy losses in Nuclear or Particle Physics using SRIM tables or LISE++ tables. The only required inputs are a SRIM file and the SRIM files can be the exact same output from SRIM or a "reduced" file where only the table is present along with the conversion factor to MeV/mm. More information on the setup of input files can be found in the [Setting Up Input Files](#inputFiles) section. To use this with tables generated from LISE++, more information can be found in [Using LISE++ Tables](#liseTables)
+This is a C++ header library that is used for calculating energy losses in Nuclear or Particle Physics that uses SRIM tables, LISE++ tables or "basic" energy loss tables. This library started by calculating energy loss using SRIM tables so they are the default type of table that is to be used although LISE++ tables and "basic" tables can also be read while initializing the class without specifying a table. More information on the setup of input files from SRIM tables can be found in the [Setting Up Input Files](#inputFiles) section. To use this with tables generated from LISE++, more information can be found in [Using LISE++ Tables](#liseTables). To use this class with "basic" tables, more information can be found in [Using "Basic" Tables](#basicTables).
 
 This library requires C++11.
 
 ## How to install
 
 ```
-git clone --recursive https://github.com/joshhooker/EnergyLossClass.git
+git clone https://github.com/joshhooker/EnergyLossClass.git
 ```
 
 Include EnergyLoss.h into your C++ program.
@@ -179,13 +179,14 @@ EnergyLoss* carbonUseFactor = new EnergyLoss("CarbonCsIReduced.dat", 4.5099e+02,
 
 ## Using LISE++ Tables<a name="liseTables"></a>
 
-The LISE++ table implementation in the EnergyLoss class allows for you to use MeV/mm or MeV/mg/cm2 as in input, allows one to use different energy loss calculations that are provided in the table. The base implementation looks like the following:
+The LISE++ table implementation in the EnergyLoss class allows for you to use both types of units for stopping power (MeV/um or MeV/mg/cm2) as an input and allows one to use different energy loss calculations that are provided in the table. The base implementation looks like the following:
 ```c++
 ReadLISEdEdx(const char* inputFile, double mass, double density, int column)
 ```
+* inputFile is the path to the LISE++ energy loss table (required)
 * mass is the mass of the particle in u (required)
-* density is measured in g/cm3. If density is present, then the table is assumed to be in units of MeV/mg/cm2.
-* column is which energy loss calculation to use which is described below.
+* density is measured in g/cm3. If density is present, then the table is assumed to be in units of MeV/mg/cm2. If density is not present, then the table is assumed to be in units of MeV/um.
+* column is which energy loss calculation to use which is described below. If the column is not present, then selection #2 is assumed 
 
 LISE++ tables come with 5 different energy loss calculations and we can toggle between the columns when initializing the tables.
 Columns:
@@ -193,18 +194,40 @@ Columns:
 * 1 - dE/dx from  J.F.Ziegler et al, Pergamon Press, NY (low energy)
 * 2 - dE/dx from ATIMA 1.2  LS-theory (recommended for high energy)
 * 3 - dE/dx from ATIMA 1.2  without LS-correction
-* 4 - electrical component + nuclear component of J. F. Ziegler et al.
+* 4 - electrical component of J. F. Ziegler et al. (Option #1)
+* 5 - nuclear component of J. F. Ziegler et al. (Option #1)
 
 To use LISE++ tables, we will first initialize the EnergyLoss class
 ```c++
 EnergyLoss* carbon = new EnergyLoss();
 ```
 
-To then use an energy loss table from LISE++ of 12C in CsI where the units are in MeV/mm and we will use energy loss column #0
+To then use an energy loss table from LISE++ of 12C in CsI where the units are in MeV/mm and we will use energy loss column #2
 ```c++
 carbon->ReadLISEdEdx("12C_in_CsI.lise", 12.0);
 ```
 
+To use an energy loss table from LISE++ where the units are in MeV/mg/cm^2 and energy loss column #3
+```c++
+carbon->ReadLISEdEdx("12C_in_CsI.lise", 12.0, 4.51, 3);
+```
+where 4.51 is the density of CsI in g/cm^3.
 
-### License
+## Using "Basic" Tables<a name="basicTables"></a>
+
+Basic tables in this sense correspond to plain text tables with two columns: Energy (in MeV) and stopping power (in MeV/mm).
+
+The initialize and read one of these basic energy loss tables, we will first initialize the EnergyLoss class
+```c++
+EnergyLoss* proton = new EnergyLoss();
+```
+
+To then use an energy loss table in this form, we will then call:
+```c++
+proton->ReadBasicdEdx("ProtonD2.dat");
+```
+
+There is no support currently that supports the basic tables to have units of MeV/mg/cm2 yet.
+
+## License
 See the [LICENSE](https://github.com/joshhooker/EnergyLossClass/blob/master/LICENSE.md) file for license rights and limitations (MIT).

@@ -28,6 +28,7 @@ set(SCRIPTS
   EnergyLoss.dat
   ProtonD2.dat
   12C_in_CsI.lise
+  12C_in_CsI_MeV_mgcm2.lise
 )
 
 foreach(_script ${SCRIPTS})

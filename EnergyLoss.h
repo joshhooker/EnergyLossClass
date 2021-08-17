@@ -2,6 +2,7 @@
 #define EnergyLoss_h
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstdio>
@@ -13,7 +14,156 @@
 #include <string>
 #include <vector>
 
-#include "CubicSpline/CubicSpline.h"
+#define ASSERT_WITH_MESSAGE(condition, message)                                \
+  do {                                                                         \
+    if (!(condition)) {                                                        \
+      printf((message));                                                       \
+    }                                                                          \
+    assert((condition));                                                       \
+  } while (false)
+
+class CubicSpline_EL {
+public:
+    CubicSpline_EL();
+    template <typename T> CubicSpline_EL(const std::vector<T> &x, const std::vector<T> &y);
+    template <typename T, int N, int M> CubicSpline_EL(const T (&x) [N], const T (&y) [M]);
+    template <typename T, std::size_t N, std::size_t M> CubicSpline_EL(const std::array<T, N>& x, const std::array<T, M>& y);
+    template <typename T> void SetPoints(const std::vector<T> &x, const std::vector<T> &y);
+    template <typename T, int N, int M> void SetPoints(const T (&x) [N], const T (&y) [M]);
+    template <typename T, std::size_t N, std::size_t M> void SetPoints(const std::array<T, N>& x, const std::array<T, M>& y);
+    template <typename T> double operator()(T x) const;
+    ~CubicSpline_EL();
+
+private:
+    size_t size;
+    std::vector<double> xVec, yVec;
+    std::vector<double> bVec, cVec, dVec;
+
+    void SetSpline();
+};
+
+
+inline CubicSpline_EL::CubicSpline_EL() {}
+
+template<typename T> inline CubicSpline_EL::CubicSpline_EL(const std::vector<T> &x, const std::vector<T> &y) {
+    ASSERT_WITH_MESSAGE(x.size() == y.size(),
+                        "In CubicSpline initialization, x vector size != y vector size\n");
+    assert(x.size() == y.size());
+    size = x.size();
+    xVec = x; yVec = y;
+    bVec.resize(size); cVec.resize(size); dVec.resize(size);
+
+    SetSpline();
+}
+
+template <typename T, int N, int M> inline CubicSpline_EL::CubicSpline_EL(const T (&x) [N], const T (&y) [M]) {
+    ASSERT_WITH_MESSAGE(N == M,
+                        "In CubicSpline initialization, x array size != y array size\n");
+    assert(N == M);
+    size = N;
+    xVec.assign(x, x+N); yVec.assign(y, y+M);
+    bVec.resize(size); cVec.resize(size); dVec.resize(size);
+
+    SetSpline();
+}
+
+template <typename T, std::size_t N, std::size_t M> inline CubicSpline_EL::CubicSpline_EL(const std::array<T, N>& x, const std::array<T, M>& y) {
+    ASSERT_WITH_MESSAGE(N == M,
+                        "In CubicSpline initialization, x array size != y array size\n");
+    size = N;
+    xVec.resize(size); yVec.resize(size);
+    std::copy(x.begin(), x.begin()+size, xVec.begin());
+    std::copy(y.begin(), y.begin()+size, yVec.begin());
+    bVec.resize(size); cVec.resize(size); dVec.resize(size);
+
+    SetSpline();
+}
+
+template <typename T> inline void CubicSpline_EL::SetPoints(const std::vector<T> &x, const std::vector<T> &y) {
+    ASSERT_WITH_MESSAGE(x.size() == y.size(),
+                        "In CubicSpline SetPoints, x vector size != y vector size\n");
+    size = x.size();
+    xVec = x; yVec = y;
+    bVec.resize(size); cVec.resize(size); dVec.resize(size);
+
+    SetSpline();
+}
+
+template <typename T, int N, int M> inline void CubicSpline_EL::SetPoints(const T (&x) [N], const T (&y) [M]) {
+    ASSERT_WITH_MESSAGE(N == M,
+                        "In CubicSpline SetPoints, x array size != y array size\n");
+    size = N;
+    xVec.assign(x, x + N); yVec.assign(y, y + M);
+    bVec.resize(size); cVec.resize(size); dVec.resize(size);
+
+    SetSpline();
+}
+
+template <typename T, std::size_t N, std::size_t M> inline void CubicSpline_EL::SetPoints(const std::array<T, N>& x, const std::array<T, M>& y) {
+    ASSERT_WITH_MESSAGE(N == M,
+                        "In CubicSpline SetPoints, x array size != y array size\n");
+    size = N;
+    xVec.resize(size); yVec.resize(size);
+    std::copy(x.begin(), x.begin()+size, xVec.begin());
+    std::copy(y.begin(), y.begin()+size, yVec.begin());
+    bVec.resize(size); cVec.resize(size); dVec.resize(size);
+
+    SetSpline();
+}
+
+void inline CubicSpline_EL::SetSpline() {
+    std::vector<double> h(size), alpha(size), l(size), z(size), u(size);
+
+    l[0] = 1.;
+    u[0] = 0.;
+    z[0] = 0.;
+    l[size - 1] = 1.;
+    u[size - 1] = 0.;
+    cVec[size - 1] = 0.;
+    for(unsigned int i = 0; i < size - 1; i++) {
+        ASSERT_WITH_MESSAGE(xVec[i + 1] > xVec[i],
+                            "In CubicSpline SetSpline, x array is not sorted from smallest to largest\n");
+        assert(xVec[i + 1] > xVec[i]);
+        h[i] = xVec[i + 1] - xVec[i];
+        if(i > 0) {
+            alpha[i] = (3./h[i])*(yVec[i + 1] - yVec[i]) - (3./h[i - 1])*(yVec[i] - yVec[i - 1]);
+            l[i] = 2.*(xVec[i + 1] - xVec[i - 1]) - h[i - 1]*u[i - 1];
+            u[i] = h[i]/l[i];
+            z[i] = (alpha[i] - h[i - 1]*z[i - 1])/l[i];
+        }
+    }
+    for(int i = size - 2; i > -1; i--) {
+        cVec[i] = z[i] - u[i]*cVec[i + 1];
+        bVec[i] = (yVec[i + 1] - yVec[i])/h[i] - h[i]*(cVec[i + 1] + 2.*cVec[i])/3.;
+        dVec[i] = (cVec[i + 1] - cVec[i])/(3.*h[i]);
+    }
+}
+
+template <typename T> inline double CubicSpline_EL::operator()(T x) const{
+    double xs = static_cast<double>(x);
+
+    int l = 0;
+    int h = size;
+    while(l < h) {
+        int mid = (l + h)/2;
+        if(xs <= xVec[mid]) {
+            h = mid;
+        } else {
+            l = mid + 1;
+        }
+    }
+
+    size_t idx = (l == 0) ? 0 : l - 1;
+
+    double xi = xs-xVec[idx];
+    double result;
+    if(idx == 0) result = yVec[0] + bVec[0]*xi + cVec[0]*xi*xi;
+    else if(idx == size - 1) result = yVec[size - 1] + bVec[size - 1]*xi + cVec[size - 1]*xi*xi;
+    else result = yVec[idx] + bVec[idx]*xi + cVec[idx]*xi*xi + dVec[idx]*xi*xi*xi;
+    return result;
+}
+
+inline CubicSpline_EL::~CubicSpline_EL() = default;
 
 class EnergyLoss {
 public:
@@ -62,7 +212,7 @@ private:
 
     std::vector<double> energy_;
     std::vector<double> dEdx_;
-    CubicSpline energySpline;
+    CubicSpline_EL energySpline;
 
     double x16[8], w16[8], x32[16], w32[16], x64[32], w64[32];
     double x128[64], w128[64], x256[128], w256[128];
@@ -94,7 +244,7 @@ private:
 
     // Variables to read LISE File
     std::vector<double> lise_energy_mevu_; // in MeV/u
-    std::vector<double> lise_dedx_columns_[5]; // in MeV/um or MeV/mg/cm2
+    std::vector<double> lise_dedx_columns_[6]; // in MeV/um or MeV/mg/cm2
 
     std::string PrintOutput(std::string Output, std::string Color);
 };
@@ -285,22 +435,23 @@ inline void EnergyLoss::ReadLISEFile(const char* inputFile) {
         lise_dedx_columns_[1].push_back(dEdx1);
         lise_dedx_columns_[2].push_back(dEdx2);
         lise_dedx_columns_[3].push_back(dEdx3);
-        lise_dedx_columns_[4].push_back(dEdx4 + dEdx5);
+        lise_dedx_columns_[4].push_back(dEdx4);
+        lise_dedx_columns_[5].push_back(dEdx5);
     }
 
     inFile.close();
 }
 
 inline void EnergyLoss::ReadLISEdEdx(const char* inputFile, double mass) {
-    ReadLISEdEdx(inputFile, mass, 1000.0, 0);
+    ReadLISEdEdx(inputFile, mass, 10.0, 1);
 }
 
 inline void EnergyLoss::ReadLISEdEdx(const char* inputFile, double mass, int column) {
-    ReadLISEdEdx(inputFile, mass, 1000.0, column);
+    ReadLISEdEdx(inputFile, mass, 10.0, column);
 }
 
 inline void EnergyLoss::ReadLISEdEdx(const char* inputFile, double mass, double density) {
-    ReadLISEdEdx(inputFile, mass, density, 0);
+    ReadLISEdEdx(inputFile, mass, density, 1);
 }
 
 inline void EnergyLoss::ReadLISEdEdx(const char* inputFile, double mass, double density, int column) {
@@ -324,8 +475,6 @@ inline void EnergyLoss::ReadLISEdEdx(const char* inputFile, double mass, double 
     AddBackHighPoint = 250.;
 
     ReadInitParams();
-
-    debug = true;
 }
 
 inline void EnergyLoss::SetDebug(bool flag) {
