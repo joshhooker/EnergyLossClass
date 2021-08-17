@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#define ASSERT_WITH_MESSAGE(condition, message)                                \
+#define ASSERT_WITH_MESSAGE_EL(condition, message)                                \
   do {                                                                         \
     if (!(condition)) {                                                        \
       printf((message));                                                       \
@@ -46,7 +46,7 @@ private:
 inline CubicSpline_EL::CubicSpline_EL() {}
 
 template<typename T> inline CubicSpline_EL::CubicSpline_EL(const std::vector<T> &x, const std::vector<T> &y) {
-    ASSERT_WITH_MESSAGE(x.size() == y.size(),
+    ASSERT_WITH_MESSAGE_EL(x.size() == y.size(),
                         "In CubicSpline initialization, x vector size != y vector size\n");
     assert(x.size() == y.size());
     size = x.size();
@@ -57,7 +57,7 @@ template<typename T> inline CubicSpline_EL::CubicSpline_EL(const std::vector<T> 
 }
 
 template <typename T, int N, int M> inline CubicSpline_EL::CubicSpline_EL(const T (&x) [N], const T (&y) [M]) {
-    ASSERT_WITH_MESSAGE(N == M,
+    ASSERT_WITH_MESSAGE_EL(N == M,
                         "In CubicSpline initialization, x array size != y array size\n");
     assert(N == M);
     size = N;
@@ -68,7 +68,7 @@ template <typename T, int N, int M> inline CubicSpline_EL::CubicSpline_EL(const 
 }
 
 template <typename T, std::size_t N, std::size_t M> inline CubicSpline_EL::CubicSpline_EL(const std::array<T, N>& x, const std::array<T, M>& y) {
-    ASSERT_WITH_MESSAGE(N == M,
+    ASSERT_WITH_MESSAGE_EL(N == M,
                         "In CubicSpline initialization, x array size != y array size\n");
     size = N;
     xVec.resize(size); yVec.resize(size);
@@ -80,7 +80,7 @@ template <typename T, std::size_t N, std::size_t M> inline CubicSpline_EL::Cubic
 }
 
 template <typename T> inline void CubicSpline_EL::SetPoints(const std::vector<T> &x, const std::vector<T> &y) {
-    ASSERT_WITH_MESSAGE(x.size() == y.size(),
+    ASSERT_WITH_MESSAGE_EL(x.size() == y.size(),
                         "In CubicSpline SetPoints, x vector size != y vector size\n");
     size = x.size();
     xVec = x; yVec = y;
@@ -90,7 +90,7 @@ template <typename T> inline void CubicSpline_EL::SetPoints(const std::vector<T>
 }
 
 template <typename T, int N, int M> inline void CubicSpline_EL::SetPoints(const T (&x) [N], const T (&y) [M]) {
-    ASSERT_WITH_MESSAGE(N == M,
+    ASSERT_WITH_MESSAGE_EL(N == M,
                         "In CubicSpline SetPoints, x array size != y array size\n");
     size = N;
     xVec.assign(x, x + N); yVec.assign(y, y + M);
@@ -100,7 +100,7 @@ template <typename T, int N, int M> inline void CubicSpline_EL::SetPoints(const 
 }
 
 template <typename T, std::size_t N, std::size_t M> inline void CubicSpline_EL::SetPoints(const std::array<T, N>& x, const std::array<T, M>& y) {
-    ASSERT_WITH_MESSAGE(N == M,
+    ASSERT_WITH_MESSAGE_EL(N == M,
                         "In CubicSpline SetPoints, x array size != y array size\n");
     size = N;
     xVec.resize(size); yVec.resize(size);
@@ -121,7 +121,7 @@ void inline CubicSpline_EL::SetSpline() {
     u[size - 1] = 0.;
     cVec[size - 1] = 0.;
     for(unsigned int i = 0; i < size - 1; i++) {
-        ASSERT_WITH_MESSAGE(xVec[i + 1] > xVec[i],
+        ASSERT_WITH_MESSAGE_EL(xVec[i + 1] > xVec[i],
                             "In CubicSpline SetSpline, x array is not sorted from smallest to largest\n");
         assert(xVec[i + 1] > xVec[i]);
         h[i] = xVec[i + 1] - xVec[i];
@@ -275,7 +275,7 @@ inline EnergyLoss::EnergyLoss(const char* srimFile, double stoppingPower, bool d
 
 inline void EnergyLoss::ReadFile(const char* srimFile) {
     std::ifstream inFile(srimFile);
-    ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find SRIM file!\n");
+    ASSERT_WITH_MESSAGE_EL(inFile.is_open(), "Cannot find SRIM file!\n");
 
     if(debug) std::cout << PrintOutput("DEBUGGING: READING IN SRIM FILE", "red") << std::endl;
 
@@ -349,7 +349,7 @@ inline void EnergyLoss::ReadFile(const char* srimFile) {
 
 inline void EnergyLoss::ReadFileSimple(const char* srimFile, double stoppingPower) {
     std::ifstream inFile(srimFile);
-    ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find SRIM file!\n");
+    ASSERT_WITH_MESSAGE_EL(inFile.is_open(), "Cannot find SRIM file!\n");
 
     if(debug) std::cout << PrintOutput("DEBUGGING: READING IN SRIM FILE", "red") << std::endl;
 
@@ -401,7 +401,7 @@ inline void EnergyLoss::ReadFileSimple(const char* srimFile, double stoppingPowe
 
 inline void EnergyLoss::ReadBasicdEdx(const char* inputFile) {
     std::ifstream inFile(inputFile);
-    ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find input file!\n");
+    ASSERT_WITH_MESSAGE_EL(inFile.is_open(), "Cannot find input file!\n");
 
     double energy, dEdx;
     while (inFile >> energy >> dEdx) {
@@ -423,7 +423,7 @@ inline void EnergyLoss::ReadBasicdEdx(const char* inputFile) {
 
 inline void EnergyLoss::ReadLISEFile(const char* inputFile) {
     std::ifstream inFile(inputFile);
-    ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find input file!\n");
+    ASSERT_WITH_MESSAGE_EL(inFile.is_open(), "Cannot find input file!\n");
 
     std::string str;
     std::getline(inFile, str); // skip the first line
@@ -804,7 +804,7 @@ inline double EnergyLoss::CalcRangeGL1024(double a, double b) {
 
 inline void EnergyLoss::ReadInitParams() {
     std::ifstream inFile("EnergyLoss.dat", std::ios::in | std::ifstream::binary);
-    ASSERT_WITH_MESSAGE(inFile.is_open(), "Cannot find EnergyLoss.dat file!\n");
+    ASSERT_WITH_MESSAGE_EL(inFile.is_open(), "Cannot find EnergyLoss.dat file!\n");
 
     inFile.read(reinterpret_cast<char*> (x16), sizeof(x16));
     inFile.read(reinterpret_cast<char*> (w16), sizeof(w16));
